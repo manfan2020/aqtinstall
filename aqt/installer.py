@@ -660,14 +660,14 @@ class Cli:
     def _warn_on_deprecated_command(self, old_name: str, new_name: str):
         warnings.warn(
             f"The command '{old_name}' is deprecated and marked for removal in a future version of aqt.\n"
-            f"In the future, please use the command '{new_name}' instead."
+            f"In the future, please use the command '{new_name}' instead.", DeprecationWarning
         )
 
     def _warn_on_deprecated_parameter(self, parameter_name: str, value: str):
         warnings.warn(
             f"The parameter '{parameter_name}' with value '{value}' is deprecated and marked for "
             f"removal in a future version of aqt.\n"
-            f"In the future, please omit this parameter."
+            f"In the future, please omit this parameter.", DeprecationWarning
         )
 
     def _make_all_parsers(self, subparsers: argparse._SubParsersAction):

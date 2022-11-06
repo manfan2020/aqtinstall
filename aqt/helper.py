@@ -488,3 +488,4 @@ def setup_logging(env_key="LOG_CFG"):
         logging.config.fileConfig(config)
     else:
         logging.config.fileConfig(Settings.loggingconf)
+    logging.captureWarnings(True)
