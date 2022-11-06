@@ -29,8 +29,11 @@ Command changes
 ===============
 
 From version 2.0.0, sub commands are changed.
+From version 3.0.0, legacy sub commands are planed to removed and marked as
+deprecated.
+
 The previous versions of these sub commands have been retained for backwards
-compatibility, but are no longer recommended.
+compatibility, but are no longer recommended and now deprecated.
 
 +------------------+---------------------+----------------------------+
 | New sub commands | Legacy sub commands |  Note                      |

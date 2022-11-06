@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 #
 # Copyright (C) 2018 Linus Jahn <lnj@kaidan.im>
-# Copyright (C) 2019-2021 Hiroshi Miura <miurahr@linux.com>
+# Copyright (C) 2019-2022 Hiroshi Miura <miurahr@linux.com>
 # Copyright (C) 2020, Aurélien Gâteau
+# Copyright (C) 2021-2022 David Dalcino
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
@@ -31,6 +32,7 @@ import signal
 import subprocess
 import sys
 import time
+import warnings
 from logging import getLogger
 from logging.handlers import QueueHandler
 from pathlib import Path
@@ -656,13 +658,13 @@ class Cli:
         self._set_common_options(install_tool_parser)
 
     def _warn_on_deprecated_command(self, old_name: str, new_name: str):
-        self.logger.warning(
+        warnings.warn(
             f"The command '{old_name}' is deprecated and marked for removal in a future version of aqt.\n"
             f"In the future, please use the command '{new_name}' instead."
         )
 
     def _warn_on_deprecated_parameter(self, parameter_name: str, value: str):
-        self.logger.warning(
+        warnings.warn(
             f"The parameter '{parameter_name}' with value '{value}' is deprecated and marked for "
             f"removal in a future version of aqt.\n"
             f"In the future, please omit this parameter."
