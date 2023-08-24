@@ -1226,7 +1226,11 @@ def installer(
 
     if tarfile.is_tarfile(archive):
         with tarfile.open(archive) as tar_archive:
-            tar_archive.extractall(path=base_dir)
+            if hasattr(tarfile, 'data_filter'):
+                tar_archive.extractall(path=base_dir, filter='tar')
+            else:
+                logger.info('Extracting tar may be unsafe; consider updating Python')
+                tar_archive.extractall(path=base_dir)
     elif zipfile.is_zipfile(archive):
         with zipfile.ZipFile(archive) as zip_archive:
             zip_archive.extractall(path=base_dir)
