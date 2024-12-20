@@ -1137,7 +1137,7 @@ def run_installer(archives: List[QtPackage], base_dir: str, sevenzip: Optional[s
         listener.stop()
 
 
-def init_worker_sh():
+def init_worker_sh() -> None:
     signal.signal(signal.SIGINT, signal.SIG_IGN)
 
 

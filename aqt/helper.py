@@ -347,7 +347,7 @@ class SettingsClass:
         self.__dict__ = cls._shared_state
         return self
 
-    def __init__(self):
+    def __init__(self) -> None:
         if self.config is None:
             with self._lock:
                 if self.config is None:

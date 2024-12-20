@@ -141,7 +141,7 @@ class PackageUpdate:
     virtual: bool
     base: str
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         for iter_of_str in self.dependencies, self.auto_dependon, self.downloadable_archives, self.archive_install_paths:
             assert isinstance(iter_of_str, Iterable) and not isinstance(iter_of_str, str)
         for _str in self.name, self.display_name, self.description, self.release_date, self.full_version, self.base:
@@ -173,7 +173,7 @@ class PackageUpdate:
 class Updates:
     package_updates: List[PackageUpdate]
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.package_updates = []
 
     def extend(self, other):
@@ -384,7 +384,7 @@ class QtArchives:
             target_packages.add(module, package_names)
         return target_packages
 
-    def _get_archives(self):
+    def _get_archives(self) -> None:
         if self.version >= Version("6.8.0"):
             name = (
                 f"qt{self.version.major}_{self._version_str()}"
@@ -642,7 +642,7 @@ class SrcDocExamplesArchives(QtArchives):
         """
         return TargetConfig("src_doc_examples", self.target, self.arch, self.os_name)
 
-    def _get_archives(self):
+    def _get_archives(self) -> None:
         name = f"qt{self.version.major}_{self._version_str()}{self._arch_ext()}"
         self._get_archives_base(name, self._target_packages())
 
@@ -697,7 +697,7 @@ class ToolArchives(QtArchives):
         help_msg = f"Please use 'aqt list-tool {self.os_name} {self.target}' to show tools available."
         raise ArchiveListError(msg, suggested_action=[help_msg]) from e
 
-    def _get_archives(self):
+    def _get_archives(self) -> None:
         self._get_archives_base(self.tool_name, None)
 
     def _parse_update_xml(self, os_target_folder, update_xml_text, *ignored):

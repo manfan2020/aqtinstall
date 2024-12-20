@@ -162,7 +162,7 @@ class Updater:
                     "-F{}".format(os.path.join(str(self.prefix), "lib")),
                 )
 
-    def patch_qmake(self):
+    def patch_qmake(self) -> None:
         """Patch to qmake binary"""
         if self._detect_qmake():
             if self.qmake_path is None:
