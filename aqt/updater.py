@@ -23,7 +23,7 @@ import os
 import re
 import stat
 import subprocess
-from logging import getLogger
+from logging import getLogger, Logger
 from pathlib import Path
 from typing import Dict, List, Optional, Union
 
@@ -47,13 +47,13 @@ def unpatched_paths() -> List[str]:
 
 
 class Updater:
-    def __init__(self, prefix: Path, logger):
+    def __init__(self, prefix: Path, logger: Logger):
         self.logger = logger
         self.prefix = prefix
         self.qmake_path: Optional[Path] = None
         self.qconfigs: Dict[str, str] = {}
 
-    def _patch_binfile(self, file: Path, key: bytes, newpath: bytes):
+    def _patch_binfile(self, file: Path, key: bytes, newpath: bytes) -> None:
         """Patch binary file with key/value"""
         st = file.stat()
         data = file.read_bytes()
@@ -68,7 +68,7 @@ class Updater:
         file.write_bytes(data)
         os.chmod(str(file), st.st_mode)
 
-    def _append_string(self, file: Path, val: str):
+    def _append_string(self, file: Path, val: str) -> None:
         """Append string to file"""
         st = file.stat()
         data = file.read_text("UTF-8")
@@ -76,7 +76,7 @@ class Updater:
         file.write_text(data, "UTF-8")
         os.chmod(str(file), st.st_mode)
 
-    def _patch_textfile(self, file: Path, old: Union[str, re.Pattern], new: str, *, is_executable: bool = False):
+    def _patch_textfile(self, file: Path, old: Union[str, re.Pattern], new: str, *, is_executable: bool = False) -> None:
         st = file.stat()
         file_mode = st.st_mode | (stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH if is_executable else 0)
         data = file.read_text("UTF-8")
@@ -107,12 +107,12 @@ class Updater:
                 return True
         return False
 
-    def patch_prl(self, oldvalue):
+    def patch_prl(self, oldvalue) -> None:
         for prlfile in self.prefix.joinpath("lib").glob("*.prl"):
             self.logger.info("Patching {}".format(prlfile))
             self._patch_textfile(prlfile, oldvalue, "$$[QT_INSTALL_LIBS]")
 
-    def patch_pkgconfig(self, oldvalue, os_name):
+    def patch_pkgconfig(self, oldvalue, os_name) -> None:
         for pcfile in self.prefix.joinpath("lib", "pkgconfig").glob("*.pc"):
             self.logger.info("Patching {}".format(pcfile))
             self._patch_textfile(
@@ -127,7 +127,7 @@ class Updater:
                     "-F{}".format(os.path.join(str(self.prefix), "lib")),
                 )
 
-    def patch_libtool(self, oldvalue, os_name):
+    def patch_libtool(self, oldvalue, os_name) -> None:
         for lafile in self.prefix.joinpath("lib").glob("*.la"):
             self.logger.info("Patching {}".format(lafile))
             self._patch_textfile(
@@ -184,11 +184,11 @@ class Updater:
                 newpath=bytes(str(self.prefix), "UTF-8"),
             )
 
-    def patch_qt_scripts(self, base_dir, version_dir: str, os_name: str, desktop_arch_dir: str, version: Version):
+    def patch_qt_scripts(self, base_dir, version_dir: str, os_name: str, desktop_arch_dir: str, version: Version) -> None:
         sep = "\\" if os_name == "windows" else "/"
         patched = sep.join([base_dir, version_dir, desktop_arch_dir, "bin"])
 
-        def patch_script(script_name):
+        def patch_script(script_name) -> None:
             script_path = self.prefix / "bin" / (script_name + ".bat" if os_name == "windows" else script_name)
             self.logger.info(f"Patching {script_path}")
             for unpatched in unpatched_paths():
@@ -201,7 +201,7 @@ class Updater:
             patch_script("qmake6")
             patch_script("qtpaths6")
 
-    def patch_qtcore(self, target):
+    def patch_qtcore(self, target) -> None:
         """patch to QtCore"""
         if target.os_name == "mac":
             lib_dir = self.prefix.joinpath("lib", "QtCore.framework")
@@ -221,13 +221,13 @@ class Updater:
                 newpath = bytes(str(self.prefix), "UTF-8")
                 self._patch_binfile(qtcore_path, b"qt_prfxpath=", newpath)
 
-    def make_qtconf(self, base_dir, qt_version, arch_dir):
+    def make_qtconf(self, base_dir, qt_version, arch_dir) -> None:
         """Prepare qt.conf"""
         with open(os.path.join(base_dir, qt_version, arch_dir, "bin", "qt.conf"), "w") as f:
             f.write("[Paths]\n")
             f.write("Prefix=..\n")
 
-    def make_qtenv2(self, base_dir, qt_version, arch_dir):
+    def make_qtenv2(self, base_dir, qt_version, arch_dir) -> None:
         """Prepare qtenv2.bat"""
         with open(os.path.join(base_dir, qt_version, arch_dir, "bin", "qtenv2.bat"), "w") as f:
             f.write("@echo off\n")
@@ -236,7 +236,7 @@ class Updater:
             f.write("cd /D {}\n".format(os.path.join(base_dir, qt_version, arch_dir)))
             f.write("echo Remember to call vcvarsall.bat to complete environment setup!\n")
 
-    def set_license(self, base_dir: str, qt_version: str, arch_dir: str):
+    def set_license(self, base_dir: str, qt_version: str, arch_dir: str) -> None:
         """Update qconfig.pri as OpenSource"""
         with open(os.path.join(base_dir, qt_version, arch_dir, "mkspecs", "qconfig.pri"), "r+") as f:
             lines = f.readlines()
@@ -249,7 +249,7 @@ class Updater:
                     line = "QT_LICHECK =\n"
                 f.write(line)
 
-    def patch_target_qt_conf(self, base_dir: str, qt_version: str, arch_dir: str, os_name: str, desktop_arch_dir: str):
+    def patch_target_qt_conf(self, base_dir: str, qt_version: str, arch_dir: str, os_name: str, desktop_arch_dir: str) -> None:
         target_qt_conf = self.prefix / "bin" / "target_qt.conf"
         new_hostprefix = f"HostPrefix=../../{desktop_arch_dir}"
         new_targetprefix = "Prefix={}".format(str(Path(base_dir).joinpath(qt_version, arch_dir, "target")))
@@ -263,7 +263,7 @@ class Updater:
         self._patch_textfile(target_qt_conf, "HostPrefix=../../", new_hostprefix)
         self._patch_textfile(target_qt_conf, "HostData=target", new_hostdata)
 
-    def patch_qdevice_file(self, base_dir: str, qt_version: str, arch_dir: str, os_name: str):
+    def patch_qdevice_file(self, base_dir: str, qt_version: str, arch_dir: str, os_name: str) -> None:
         """Qt 6.4.1+ specific, but it should not hurt anything if `mkspecs/qdevice.pri` does not exist"""
 
         qdevice = Path(base_dir) / qt_version / arch_dir / "mkspecs/qdevice.pri"
@@ -275,7 +275,7 @@ class Updater:
         self._patch_textfile(qdevice, old_line, new_line)
 
     @classmethod
-    def update(cls, target: TargetConfig, base_path: Path, installed_desktop_arch_dir: Optional[str]):
+    def update(cls, target: TargetConfig, base_path: Path, installed_desktop_arch_dir: Optional[str]) -> None:
         """
         Make Qt configuration files, qt.conf and qtconfig.pri.
         And update pkgconfig and patch Qt5Core and qmake

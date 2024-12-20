@@ -151,7 +151,7 @@ class Versions:
     def __str__(self) -> str:
         return str(self.versions)
 
-    def __format__(self, format_spec) -> str:
+    def __format__(self, format_spec: str) -> str:
         if format_spec == "":
             return "\n".join(" ".join(str(version) for version in minor_list) for minor_list in self.versions)
         elif format_spec == "s":
@@ -315,7 +315,7 @@ class TableMetadata(ABC):
         self.table_data: Dict[str, Dict[str, str]] = table_data
         self.format_field_for_tty("Description")
 
-    def format_field_for_tty(self, field: str):
+    def format_field_for_tty(self, field: str) -> None:
         for key in self.table_data.keys():
             if field in self.table_data[key] and self.table_data[key][field]:
                 self.table_data[key][field] = self.table_data[key][field].replace("<br>", "\n")
